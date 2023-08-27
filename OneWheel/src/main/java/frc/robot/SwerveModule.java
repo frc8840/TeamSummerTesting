@@ -13,9 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.ctre.phoenix.sensors.CANCoder;
 
 public class SwerveModule {
   private static final double kWheelRadius = 0.0508;
@@ -25,6 +25,7 @@ public class SwerveModule {
   private static final double kModuleMaxAngularAcceleration =
       2 * Math.PI; // radians per second squared
 
+  private final CANCoder m_canCoder;
   private final MotorController m_driveMotor;
   private final MotorController m_turningMotor;
 
@@ -63,7 +64,9 @@ public class SwerveModule {
       int driveEncoderChannelA,
       int driveEncoderChannelB,
       int turningEncoderChannelA,
-      int turningEncoderChannelB) {
+      int turningEncoderChannelB,
+      int canCoderPort) {
+    m_canCoder = new CANCoder(canCoderPort);
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
 

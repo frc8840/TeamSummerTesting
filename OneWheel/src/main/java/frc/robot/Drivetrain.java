@@ -23,7 +23,7 @@ public class Drivetrain {
   //private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
   //private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(11, 12, 0, 1, 2, 3, 21);
+  private final SwerveModule m_frontLeft = new SwerveModule(11, 12, 0, 1, 2, 3, 23);
  // private final SwerveModule m_frontRight = new SwerveModule(3, 4, 4, 5, 6, 7);
   //private final SwerveModule m_backLeft = new SwerveModule(5, 6, 8, 9, 10, 11);
   //private final SwerveModule m_backRight = new SwerveModule(7, 8, 12, 13, 14, 15);
@@ -65,7 +65,9 @@ public class Drivetrain {
                 : new ChassisSpeeds(xSpeed, ySpeed, rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
     */
-    m_frontLeft.setDesiredState(new SwerveModuleState(0.01, new Rotation2d(0.2, 0.2))); //swerveModuleStates[0]);
+    double generalSpeed = Math.sqrt((xSpeed * xSpeed) + (ySpeed + ySpeed));
+    Rotation2d generalAngle = new Rotation2d(Math.atan2(ySpeed, xSpeed));
+    m_frontLeft.setDesiredState(new SwerveModuleState(generalSpeed, generalAngle)); //swerveModuleStates[0]);
     /*m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_backLeft.setDesiredState(swerveModuleStates[2]);
     m_backRight.setDesiredState(swerveModuleStates[3]);*/

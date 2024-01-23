@@ -14,31 +14,37 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorTimeBase;
 
 public class SwerveModule {
   private static final double kWheelRadius = 0.0508;
   private static final int kEncoderResolution = 4096;
-
+  private int counter = 0;
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
       2 * Math.PI; // radians per second squared
 
   private final CANCoder m_canCoder;
-  private final MotorController m_driveMotor;
-  private final MotorController m_turningMotor;
+  private final CANSparkMax m_driveMotor;
+  private final CANSparkMax m_turningMotor;
 
+  // Testing...
+  private final RelativeEncoder m_testDriveEncoder;
+  private final RelativeEncoder m_testTurningEncoder;
   private final Encoder m_driveEncoder;
   private final Encoder m_turningEncoder;
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
+  private final PIDController m_drivePIDController = new PIDController(0.1, 0, 0);
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final ProfiledPIDController m_turningPIDController =
       new ProfiledPIDController(
-          1,
+          0.1,
           0,
           0,
           new TrapezoidProfile.Constraints(
@@ -67,8 +73,21 @@ public class SwerveModule {
       int turningEncoderChannelB,
       int canCoderPort) {
     m_canCoder = new CANCoder(canCoderPort);
+  
+    // Set units of the CANCoder to radians, with velocity being radians per second
+    CANCoderConfiguration config = new CANCoderConfiguration();
+    config.sensorCoefficient = 2 * Math.PI / 4096.0;
+    config.unitString = "rad";
+    config.sensorTimeBase = SensorTimeBase.PerSecond;
+    m_canCoder.configAllSettings(config);
+
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
+        
+    // Reading relative encoder values.
+    m_testDriveEncoder = m_driveMotor.getAlternateEncoder(1);
+    m_testTurningEncoder = m_turningMotor.getAlternateEncoder(1);
+
 
     m_driveEncoder = new Encoder(driveEncoderChannelA, driveEncoderChannelB);
     m_turningEncoder = new Encoder(turningEncoderChannelA, turningEncoderChannelB);
@@ -133,5 +152,25 @@ public class SwerveModule {
 
     m_driveMotor.setVoltage(driveOutput + driveFeedforward);
     m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+
+    if (counter % 100 == 0) {
+      System.out.println(counter / 100.0);
+      System.out.println("canCoder absolutePosition: " + m_canCoder.getAbsolutePosition());
+      System.out.println("canCoder position: " + m_canCoder.getPosition());
+      System.out.println("canCoder velocity: " + m_canCoder.getVelocity());
+      System.out.println("canCoder deviceID: " + m_canCoder.getDeviceID());
+      System.out.println("canCoder busVoltage: " + m_canCoder.getBusVoltage());
+      System.out.println("canCoder magnetFieldStrength: " + m_canCoder.getMagnetFieldStrength());
+      System.out.println();
+      System.out.println("driveEncoder position: " + m_testDriveEncoder.getPosition());
+      System.out.println("driveEncoder velocity: " + m_testDriveEncoder.getVelocity());
+      System.out.println("driveEncoder counts per revolution: " + m_testDriveEncoder.getCountsPerRevolution());
+      System.out.println("turningEncoder position: " + m_testTurningEncoder.getPosition());
+      System.out.println("turningEncoder velocity: " + m_testTurningEncoder.getVelocity());
+      System.out.println("driveEncoder counts per revolution: " + m_testDriveEncoder.getCountsPerRevolution());
+    }
+    
+
+    counter++;
   }
 }

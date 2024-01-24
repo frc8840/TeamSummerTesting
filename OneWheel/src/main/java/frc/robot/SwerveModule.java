@@ -37,6 +37,7 @@ public class SwerveModule {
   private final RelativeEncoder m_testTurningEncoder;
   private final Encoder m_driveEncoder;
   private final Encoder m_turningEncoder;
+  private final Boolean m_isTest = false;
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final PIDController m_drivePIDController = new PIDController(0.1, 0, 0);
@@ -153,7 +154,7 @@ public class SwerveModule {
     m_driveMotor.setVoltage(driveOutput + driveFeedforward);
     m_turningMotor.setVoltage(turnOutput + turnFeedforward);
 
-    if (counter % 100 == 0) {
+    if (counter % 100 == 0 && m_isTest) {
       System.out.println(counter / 100.0);
       System.out.println("canCoder absolutePosition: " + m_canCoder.getAbsolutePosition());
       System.out.println("canCoder position: " + m_canCoder.getPosition());

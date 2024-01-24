@@ -24,6 +24,7 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   DoubleArrayPublisher posePub;
+  DoubleArrayPublisher posePub2;
 
   
 
@@ -32,6 +33,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
+  double[] testValue = {0, 0};
 
   @Override
   public void robotInit() {
@@ -41,11 +43,13 @@ public class Robot extends TimedRobot {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable myTable = inst.getTable("datatable");
     posePub = myTable.getDoubleArrayTopic("Hellothere").publish();
+    posePub2 = myTable.getDoubleArrayTopic("Joystick Test").publish();
   }
 
   @Override
   public void autonomousInit() {
       m_autoSelected = m_chooser.getSelected();
+      System.out.println("Auto selected: " + m_autoSelected);
   }
 
   @Override
@@ -83,6 +87,11 @@ public class Robot extends TimedRobot {
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
     double[] position = {xSpeed, ySpeed, rot};
-    posePub.set(position);
+    testValue[0] += 1/60.0;
+    if (testValue[0] > 2*Math.PI) testValue[0] = 0;
+    testValue[1] = Math.cos(testValue[0]);
+    posePub.set(testValue);
+    posePub2.set(position);
+    
   }
 }
